@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { IndianRupee } from "lucide-react";
+import { IndianRupee, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,10 @@ export function PaymentDialog({ studentId, label = "Record Payment" }: { student
     const response = await fetch("/api/payments", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...Object.fromEntries(new FormData(event.currentTarget)), student_id: studentId }),
+      body: JSON.stringify({
+        ...Object.fromEntries(new FormData(event.currentTarget)),
+        student_id: studentId,
+      }),
     });
     setSaving(false);
     if (!response.ok) {
@@ -34,23 +37,28 @@ export function PaymentDialog({ studentId, label = "Record Payment" }: { student
 
   return (
     <>
-      <Button onClick={() => setOpen(true)}><IndianRupee size={16} /> {label}</Button>
-      {open ? (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4">
-          <Card className="w-full max-w-md">
-            <h2 className="mb-4 text-lg font-bold">Record Payment</h2>
+      <Button onClick={() => setOpen(true)}>
+        <IndianRupee size={16} /> {label}
+      </Button>
+      {open && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 p-0 sm:p-4">
+          <Card className="w-full sm:max-w-md rounded-b-none sm:rounded-xl">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold">Record Payment</h2>
+              <button onClick={() => setOpen(false)} className="p-1.5 rounded-md text-muted hover:text-white"><X size={20} /></button>
+            </div>
             <form onSubmit={submit} className="grid gap-4">
-              <Input name="amount" type="number" min="1" required placeholder="Amount paid" />
+              <Input name="amount" type="number" inputMode="numeric" min="1" required placeholder="Amount paid (₹)" />
               <Input name="payment_date" type="date" required defaultValue={toDateInput()} />
-              <Input name="remarks" placeholder="Partial payment, monthly fee, advance" />
+              <Input name="remarks" placeholder="Partial payment, monthly fee, advance…" />
               <div className="flex gap-2">
-                <Button className="flex-1" disabled={saving}>{saving ? "Saving..." : "Save Payment"}</Button>
+                <Button className="flex-1" disabled={saving}>{saving ? "Saving…" : "Save Payment"}</Button>
                 <Button type="button" variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>
               </div>
             </form>
           </Card>
         </div>
-      ) : null}
+      )}
     </>
   );
 }

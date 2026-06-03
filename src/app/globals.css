@@ -39,7 +39,7 @@ body {
     radial-gradient(circle at top left, rgba(212, 175, 55, 0.16), transparent 26rem),
     linear-gradient(180deg, #0f0f0f 0%, #111111 48%, #0b0b0b 100%);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
 
 a {
@@ -54,9 +54,21 @@ textarea {
   font: inherit;
 }
 
+/* Prevent iOS zoom on input focus */
+@media (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Remove tap highlight on mobile */
+button, a, [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+}
+
 ::-webkit-scrollbar {
-  height: 0.7rem;
-  width: 0.7rem;
+  height: 0.5rem;
+  width: 0.5rem;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -66,4 +78,9 @@ textarea {
 
 .table-scroll {
   scrollbar-gutter: stable;
+}
+
+/* Safe area for bottom nav on iOS */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }

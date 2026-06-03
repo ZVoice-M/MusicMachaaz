@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Pencil } from "lucide-react";
+import { Plus, Pencil, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -36,32 +36,37 @@ export function StudentDialog({ batches, student }: { batches: Batch[]; student?
   return (
     <>
       <Button onClick={() => setOpen(true)} variant={student ? "secondary" : "primary"}>
-        {student ? <Pencil size={16} /> : <Plus size={16} />} {student ? "Edit Student" : "Add Student"}
+        {student ? <Pencil size={16} /> : <Plus size={16} />}
+        {student ? "Edit" : "Add Student"}
       </Button>
-      {open ? (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4">
-          <Card className="w-full max-w-xl">
-            <div className="mb-4 flex items-center justify-between">
+      {open && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 p-0 sm:p-4">
+          <Card className="w-full sm:max-w-xl rounded-b-none sm:rounded-xl max-h-[90dvh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4 sticky top-0 bg-panel pt-1 pb-3 border-b border-border">
               <h2 className="text-lg font-bold">{student ? "Edit Student" : "Add Student"}</h2>
-              <Button variant="ghost" onClick={() => setOpen(false)} type="button">Close</Button>
+              <button onClick={() => setOpen(false)} className="p-1.5 rounded-md text-muted hover:text-white"><X size={20} /></button>
             </div>
-            <form onSubmit={submit} className="grid gap-4">
+            <form onSubmit={submit} className="grid gap-4 pb-4">
               <Input name="student_name" required defaultValue={student?.student_name} placeholder="Student name" />
-              <Input name="mobile" required defaultValue={student?.mobile} placeholder="Mobile number" />
+              <Input name="mobile" required defaultValue={student?.mobile} placeholder="Mobile number" inputMode="tel" />
               <Select name="batch_id" required defaultValue={student?.batch_id ?? ""}>
                 <option value="" disabled>Select batch</option>
-                {batches.map((batch) => <option key={batch.id} value={batch.id}>{batch.batch_name}</option>)}
+                {batches.map((b) => <option key={b.id} value={b.id}>{b.batch_name}</option>)}
               </Select>
               <Input name="joining_date" type="date" defaultValue={student?.joining_date ?? ""} />
-              <Textarea name="notes" defaultValue={student?.notes ?? ""} placeholder="Notes" />
+              <Textarea name="notes" defaultValue={student?.notes ?? ""} placeholder="Notes (optional)" />
               <label className="flex items-center gap-2 text-sm text-muted">
-                <input name="active" type="checkbox" defaultChecked={student?.active ?? true} /> Active student
+                <input name="active" type="checkbox" defaultChecked={student?.active ?? true} className="accent-gold" />
+                Active student
               </label>
-              <Button disabled={saving}>{saving ? "Saving..." : "Save"}</Button>
+              <div className="flex gap-2">
+                <Button className="flex-1" disabled={saving}>{saving ? "Saving…" : "Save"}</Button>
+                <Button type="button" variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>
+              </div>
             </form>
           </Card>
         </div>
-      ) : null}
+      )}
     </>
   );
 }
