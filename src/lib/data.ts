@@ -76,8 +76,8 @@ export async function getDashboardData() {
   const monthNames = Array.from({ length: 6 }, (_, index) => subMonths(new Date(), 5 - index));
   const attendanceTrend = monthNames.map((date) => ({
     month: format(date, "MMM"),
-    present: Math.max(10, Math.round(ledger.reduce((sum, item) => sum + item.present_days, 0) / (6 - date.getMonth() % 3))),
-    absent: Math.max(2, Math.round(ledger.reduce((sum, item) => sum + item.absent_days, 0) / 2)),
+    present: Math.max(0, Math.round(ledger.reduce((sum, item) => sum + item.present_days, 0) / (6 - date.getMonth() % 3))),
+    absent: Math.max(0, Math.round(ledger.reduce((sum, item) => sum + item.absent_days, 0) / 2)),
   }));
   const feeTrend = monthNames.map((date, index) => ({
     month: format(date, "MMM"),
