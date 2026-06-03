@@ -1,11 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Strict mode catches React issues early
   reactStrictMode: true,
-
-  // Security headers for all routes
+  compress: true,
   async headers() {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "https://*.supabase.co";
     return [
       {
         source: "/(.*)",
@@ -18,11 +17,11 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline'", // unsafe-eval needed for Next.js dev
+              "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: blob:",
               "font-src 'self' data:",
-              `connect-src 'self' ${process.env.NEXT_PUBLIC_SUPABASE_URL ?? "https://*.supabase.co"} wss://*.supabase.co`,
+              `connect-src 'self' ${supabaseUrl} wss://*.supabase.co`,
               "frame-ancestors 'none'",
             ].join("; "),
           },
@@ -30,12 +29,6 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-
-  // Compress responses
-  compress: true,
-
-  // Standalone output for lean Docker/Vercel deploys
-  output: "standalone",
 };
 
 export default nextConfig;

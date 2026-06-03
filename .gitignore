@@ -1,43 +1,33 @@
-# ---- Dependencies ----
+# Dependencies
 /node_modules
 /.pnp
 .pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
 
-# ---- Build outputs ----
+# Build
 /.next/
 /out/
 /build
 
-# ---- Environment — NEVER commit secrets ----
+# Env — NEVER commit secrets
 .env
 .env.*
 !.env.example
 
-# ---- OS / editor ----
+# OS / editor
 .DS_Store
 Thumbs.db
 *.pem
 .idea/
 .vscode/
 *.swp
-*.swo
 
-# ---- Debug logs ----
+# Debug
 npm-debug.log*
 yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
 
-# ---- Deployment ----
+# Deployment
 .vercel
 
-# ---- TypeScript ----
+# TypeScript
 *.tsbuildinfo
 next-env.d.ts
-".next/" 
-"node_modules/" 

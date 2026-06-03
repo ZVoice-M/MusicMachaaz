@@ -1,80 +1,63 @@
-# Music Machaanz Academy — Management System
+# Music Machaanz Academy Management System
 
-Production-ready single-admin academy management app built with Next.js 15, TypeScript, Tailwind CSS v4, Supabase, React Hook Form + Zod, Recharts, jsPDF, and ExcelJS.
+Production-ready single-admin academy management app built with Next.js, TypeScript, Tailwind CSS, Supabase, React Hook Form-ready validation schemas, Zod, charts, PDF export, and Excel export.
 
 ## Features
 
-- Single-admin login via Supabase Auth (admin name: **Subin**)
+- Single admin login with Supabase Auth
 - Protected dashboard, students, batches, attendance, pending dues, and settings routes
 - Student and batch CRUD
 - Monthly attendance register with Present, Absent, Leave, and Holiday statuses
 - Fee calculation from Present days only
-- Payment collection from student details and pending dues views
-- Pending dues with recent activity, trends, and PDF/Excel exports
-- Public `/status` page for Supabase availability and free-tier messaging
-- Dark black/gold/white responsive UI — mobile-first
-- Demo mode when Supabase env vars are absent
+- Payment collection from student details and pending dues
+- Pending dues, recent activity, trends, and PDF/Excel exports from Pending Dues
+- Public status page for Supabase availability and free-tier limitation messaging
+- Dark black/gold/white responsive UI
+- Demo-mode rendering before Supabase environment variables are connected
 
 ## Local Setup
 
 ```bash
 npm install
 cp .env.example .env.local
-# Fill in your Supabase URL and anon key in .env.local
 npm run dev
 ```
 
 Open `http://localhost:3000`.
 
-Visit `http://localhost:3000/status` if the app appears unreachable — it checks Supabase connectivity and explains free-tier pause/quota scenarios.
+Use `http://localhost:3000/status` when the app appears unavailable. The page checks Supabase reachability and explains common free-tier pause or quota scenarios.
 
-If Supabase env vars are missing the app renders demo data. Writes are acknowledged but not persisted in demo mode.
+If Supabase env vars are missing, the app renders demo data and lets you explore the UI. Writes are acknowledged but not persisted in demo mode.
 
 ## Supabase Setup
 
 1. Create a Supabase project.
-2. Run `supabase/migrations/0001_initial_schema.sql` in the Supabase SQL editor or via the Supabase CLI.
-3. Create **one** admin user in Supabase Authentication (this is Subin's account).
+2. Run `supabase/migrations/0001_initial_schema.sql` in the Supabase SQL editor or with Supabase CLI.
+3. Create one admin user in Supabase Authentication.
 4. Copy the project URL and anon key into `.env.local`.
 
 Required variables:
 
+```bash
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 ```
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-```
 
-> **Security note:** Do not enable public sign-up in your Supabase project. Only the single admin account (Subin) should exist. RLS policies restrict all data access to authenticated users.
+## Deployment To Vercel
 
-## Deploy to Vercel
-
-1. Push to GitHub.
-2. Import the repo in Vercel.
-3. Add the two Supabase environment variables under Project Settings → Environment Variables.
+1. Push the project to GitHub.
+2. Import it in Vercel.
+3. Add the two Supabase environment variables.
 4. Deploy.
 
 ## Business Rules
 
 - Present days generate fees.
-- Absent, Leave, and Holiday statuses do **not** generate fees.
-- Generated fees = Present days × `settings.fee_per_day`.
-- Pending amount = Generated fees − total payments collected.
-- Changing `fee_per_day` recalculates the financial view from current attendance and payments.
+- Absent, Leave, and Holiday do not generate fees.
+- Generated fees = Present days multiplied by `settings.fee_per_day`.
+- Pending amount = Generated fees minus total payments.
+- Changing fee per day affects the financial view calculated from current attendance and payments.
 
-## Tech Stack
+## Notes
 
-| Layer | Library |
-|---|---|
-| Framework | Next.js 15 (App Router) |
-| Language | TypeScript 5 (strict) |
-| Styling | Tailwind CSS v4 |
-| Auth + DB | Supabase |
-| Forms | React Hook Form 7 + Zod 4 |
-| Charts | Recharts 3 |
-| PDF export | jsPDF 4 + jspdf-autotable 5 |
-| Excel export | ExcelJS 4 |
-| Toasts | Sonner 2 |
-
-## Mobile
-
-The app is designed mobile-first. All tables include horizontal scroll wrappers, charts use `ResponsiveContainer`, and navigation collapses to a bottom tab bar on small screens.
+The RLS policies allow any authenticated Supabase user to administer data. For a strict single-admin installation, create exactly one Supabase Auth user and do not enable public sign-up.

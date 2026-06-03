@@ -1,88 +1,96 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { CheckCircle, XCircle, AlertCircle, RefreshCw, GraduationCap } from "lucide-react";
-import { Button } from "@/components/ui/Button";
 import Link from "next/link";
+import { AlertTriangle, CheckCircle2, Clock3, DatabaseZap, RefreshCw } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, StatCard } from "@/components/ui/card";
+import { formatDate } from "@/lib/utils";
+import { getSystemStatus } from "@/lib/status";
 
-type HealthStatus = "checking" | "ok" | "error" | "unconfigured";
+export const dynamic = "force-dynamic";
 
-export default function StatusPage() {
-  const [status, setStatus] = useState<HealthStatus>("checking");
-  const [latency, setLatency] = useState<number | null>(null);
-  const [error, setError] = useState<string | null>(null);
+const statusTone = {
+  operational: "green",
+  degraded: "yellow",
+  unavailable: "red",
+  demo: "blue",
+} as const;
 
-  async function checkHealth() {
-    setStatus("checking");
-    setError(null);
+const statusIcon = {
+  operational: CheckCircle2,
+  degraded: AlertTriangle,
+  unavailable: DatabaseZap,
+  demo: Clock3,
+};
 
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (!url || !key) {
-      setStatus("unconfigured");
-      return;
-    }
-
-    const start = Date.now();
-    try {
-      const res = await fetch(`${url}/rest/v1/`, {
-        headers: { apikey: key },
-        signal: AbortSignal.timeout(8000),
-      });
-      setLatency(Date.now() - start);
-      setStatus(res.ok || res.status === 404 ? "ok" : "error");
-      if (!res.ok && res.status !== 404) setError(`HTTP ${res.status}`);
-    } catch (e) {
-      setLatency(Date.now() - start);
-      setStatus("error");
-      setError(e instanceof Error ? e.message : "Network error");
-    }
-  }
-
-  useEffect(() => { checkHealth(); }, []);
-
-  const icons = {
-    checking: <RefreshCw size={32} className="text-[#888] animate-spin" />,
-    ok: <CheckCircle size={32} className="text-emerald-400" />,
-    error: <XCircle size={32} className="text-red-400" />,
-    unconfigured: <AlertCircle size={32} className="text-[#cc6600]" />,
-  };
-
-  const messages: Record<HealthStatus, { title: string; body: string }> = {
-    checking: { title: "Checking connectivity…", body: "Reaching out to Supabase." },
-    ok: { title: "All systems operational", body: `Supabase is reachable${latency != null ? ` (${latency}ms)` : ""}.` },
-    error: { title: "Supabase unreachable", body: `Could not connect${error ? `: ${error}` : ""}. If you're on the free tier, the project may be paused after 7 days of inactivity. Visit your Supabase dashboard to resume it.` },
-    unconfigured: { title: "Running in demo mode", body: "NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are not set. The app is showing demo data. Add these to .env.local to connect a real database." },
-  };
-
-  const { title, body } = messages[status];
+export default async function StatusPage() {
+  const status = await getSystemStatus();
+  const Icon = statusIcon[status.state];
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4">
-      <div className="w-full max-w-sm text-center">
-        <div className="flex items-center justify-center gap-2.5 mb-8">
-          <div className="w-8 h-8 rounded-md bg-[#cc6600] flex items-center justify-center">
-            <GraduationCap size={18} className="text-white" />
+    <main className="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-5xl">
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-gold">Music Machaanz</p>
+            <h1 className="mt-1 text-2xl font-bold text-white sm:text-3xl">System Status</h1>
+            <p className="mt-2 max-w-2xl text-sm text-muted">
+              Live availability check for the academy management system and Supabase connection.
+            </p>
           </div>
-          <span className="font-semibold text-white">Music Machaanz</span>
-        </div>
-
-        <div className="bg-[#111] border border-[#1e1e1e] rounded-2xl p-8">
-          <div className="flex justify-center mb-4">{icons[status]}</div>
-          <h1 className="text-lg font-bold text-white mb-2">{title}</h1>
-          <p className="text-sm text-[#888] leading-relaxed">{body}</p>
-
-          <div className="flex flex-col gap-2 mt-6">
-            <Button variant="secondary" icon={RefreshCw} onClick={checkHealth} loading={status === "checking"}>
-              Check again
-            </Button>
-            <Link href="/login">
-              <Button variant="ghost" className="w-full">Back to login</Button>
+          <div className="flex flex-wrap gap-2">
+            <Link href="/dashboard">
+              <Button variant="secondary">Dashboard</Button>
+            </Link>
+            <Link href="/status">
+              <Button>
+                <RefreshCw size={16} /> Refresh
+              </Button>
             </Link>
           </div>
         </div>
+
+        <Card className="mb-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-gold text-black">
+                <Icon size={24} />
+              </div>
+              <div>
+                <div className="mb-2 flex flex-wrap items-center gap-2">
+                  <h2 className="text-xl font-bold">{status.label}</h2>
+                  <Badge tone={statusTone[status.state]}>{status.state}</Badge>
+                </div>
+                <p className="max-w-3xl text-sm leading-6 text-muted">{status.message}</p>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        <section className="grid gap-3 sm:grid-cols-3">
+          <StatCard label="Supabase Connection" value={status.state === "operational" ? "Healthy" : "Check"} />
+          <StatCard label="Last Checked" value={formatDate(status.checkedAt)} detail={new Date(status.checkedAt).toLocaleTimeString("en-IN")} />
+          <StatCard label="Response Time" value={status.responseTimeMs ? `${status.responseTimeMs} ms` : "-"} />
+        </section>
+
+        <section className="mt-4 grid gap-4 lg:grid-cols-2">
+          <Card>
+            <h2 className="mb-3 font-semibold">If The System Is Unavailable</h2>
+            <ul className="space-y-3 text-sm leading-6 text-muted">
+              <li>Wait a few minutes and refresh this page. Supabase free projects can need time to resume after inactivity.</li>
+              <li>If login fails but this page says operational, verify the admin email and password in Supabase Authentication.</li>
+              <li>If the status stays unavailable, check Supabase project health, usage limits, and billing/quota notices.</li>
+            </ul>
+          </Card>
+          <Card>
+            <h2 className="mb-3 font-semibold">What May Be Affected</h2>
+            <ul className="space-y-3 text-sm leading-6 text-muted">
+              <li>Admin login and session refresh</li>
+              <li>Student, batch, attendance, and payment saves</li>
+              <li>Pending dues, dashboard metrics, and reports</li>
+            </ul>
+          </Card>
+        </section>
       </div>
-    </div>
+    </main>
   );
 }
