@@ -1,4 +1,3 @@
-
 import { LoginForm } from "@/components/forms/login-form";
 import { Card } from "@/components/ui/card";
 
@@ -10,8 +9,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-md p-6">
         <div className="mb-6 flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-md overflow-hidden shrink-0">
-  <img src="/logo.png" alt="Music Machaanz" className="h-full w-full object-cover" />
-</div>
+            <img src="/logo.png" alt="Music Machaanz" className="h-full w-full object-cover" />
           </div>
           <div>
             <h1 className="text-xl font-bold">Music Machaanz</h1>
