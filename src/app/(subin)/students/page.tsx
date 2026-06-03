@@ -66,7 +66,7 @@ export default async function StudentsPage({
               <div><p className="text-muted">Batch</p><p className="font-medium">{row.batches?.batch_name ?? "—"}</p></div>
               <div><p className="text-muted">Generated</p><p className="font-medium">{currency(row.generated_fees, settings.currency)}</p></div>
               <div><p className="text-muted">Pending</p>
-                <Badge tone={row.pending_amount > 0 ? "yellow" : "green"} className="text-xs">
+                <Badge tone={row.pending_amount > 0 ? "yellow" : "green"}>
                   {currency(row.pending_amount, settings.currency)}
                 </Badge>
               </div>
