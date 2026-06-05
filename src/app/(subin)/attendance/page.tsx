@@ -5,9 +5,12 @@ import { getAttendance, getBatches, getStudents } from "@/lib/data";
 
 export const metadata = { title: "Attendance" };
 
-
 export default async function AttendancePage() {
-  const [students, batches, attendance] = await Promise.all([getStudents(), getBatches(), getAttendance(new Date())]);
+  const [students, batches, attendance] = await Promise.all([
+    getStudents(),
+    getBatches(),
+    getAttendance(),
+  ]);
   return (
     <>
       <PageHeader title="Attendance" description="Monthly register with single-click status selection and auto-save." />
