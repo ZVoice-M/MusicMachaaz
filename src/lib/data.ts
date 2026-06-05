@@ -1,4 +1,4 @@
-import { endOfMonth, format, startOfMonth, subMonths } from "date-fns";
+import { format, subMonths } from "date-fns";
 import { demoAttendance, demoBatches, demoLedger, demoPayments, demoSettings, demoStudents } from "@/lib/demo-data";
 import { hasSupabaseEnv } from "@/lib/supabase";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
