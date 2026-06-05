@@ -102,3 +102,48 @@ export async function getDashboardData() {
     feeTrend,
   };
 }
+
+export async function getMonthlyLedger(month: number, year: number): Promise<StudentLedger[]> {
+  const supabase = await client();
+  const from = `${year}-${String(month).padStart(2, "0")}-01`;
+  const lastDay = new Date(year, month, 0).getDate();
+  const to = `${year}-${String(month).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+
+  if (!supabase) {
+    return demoLedger().map((row) => {
+      const att = demoAttendance.filter((a) => a.student_id === row.id && a.attendance_date >= from && a.attendance_date <= to);
+      const pays = demoPayments.filter((p) => p.student_id === row.id && p.payment_date >= from && p.payment_date <= to);
+      const present = att.filter((a) => a.status === "Present").length;
+      const paid = pays.reduce((s, p) => s + p.amount, 0);
+      const generated = present * demoSettings.fee_per_day;
+      return { ...row, present_days: present, generated_fees: generated, paid_amount: paid, pending_amount: generated - paid };
+    });
+  }
+
+  const [{ data: attData }, { data: payData }, { data: students }] = await Promise.all([
+    supabase.from("attendance").select("student_id, status").gte("attendance_date", from).lte("attendance_date", to),
+    supabase.from("payments").select("student_id, amount, payment_date").gte("payment_date", from).lte("payment_date", to).order("payment_date", { ascending: false }),
+    supabase.from("students").select("*, batches(*)").order("student_name"),
+  ]);
+
+  const settings = await getSettings();
+
+  return ((students as Student[]) ?? []).map((student) => {
+    const att = (attData ?? []).filter((a) => a.student_id === student.id);
+    const pays = (payData ?? []).filter((p) => p.student_id === student.id);
+    const present = att.filter((a) => a.status === "Present").length;
+    const paid = pays.reduce((s, p) => s + p.amount, 0);
+    const generated = present * settings.fee_per_day;
+    return {
+      ...student,
+      present_days: present,
+      absent_days: att.filter((a) => a.status === "Absent").length,
+      leave_days: att.filter((a) => a.status === "Leave").length,
+      holiday_days: att.filter((a) => a.status === "Holiday").length,
+      generated_fees: generated,
+      paid_amount: paid,
+      pending_amount: generated - paid,
+      last_payment_date: pays[0]?.payment_date ?? null,
+    } as StudentLedger;
+  });
+}
