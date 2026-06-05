@@ -37,18 +37,18 @@ export async function getStudentLedger(): Promise<StudentLedger[]> {
   return (data as StudentLedger[]) ?? [];
 }
 
-export async function getAttendance(month = new Date(), batchId?: string): Promise<Attendance[]> {
+export async function getAttendance(month?: Date, batchId?: string): Promise<Attendance[]> {
   const supabase = await client();
-  const from = format(startOfMonth(month), "yyyy-MM-dd");
-  const to = format(endOfMonth(month), "yyyy-MM-dd");
-  if (!supabase) return demoAttendance.filter((item) => item.attendance_date >= from && item.attendance_date <= to);
+  if (!supabase) return demoAttendance;
 
-  let query = supabase.from("attendance").select("*").gte("attendance_date", from).lte("attendance_date", to);
+  let query = supabase.from("attendance").select("*");
+
   if (batchId) {
     const students = await getStudents();
     const ids = students.filter((student) => student.batch_id === batchId).map((student) => student.id);
     query = query.in("student_id", ids);
   }
+
   const { data } = await query;
   return data ?? [];
 }
